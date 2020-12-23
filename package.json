@@ -7,14 +7,15 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
-    "@types/cors": "^2.8.8",
-    "@types/express": "^4.17.9",
+    "@koa/cors": "^3.1.0",
+    "@koa/router": "^10.0.0",
+    "@types/koa__cors": "^3.0.2",
+    "@types/koa__router": "^8.0.3",
     "@types/node": "^14.14.10",
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
-    "body-parser": "^1.19.0",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "koa": "^2.13.0",
+    "koa-body": "^4.2.0",
     "ts-node": "^9.1.0",
     "typescript": "^4.1.2"
   },

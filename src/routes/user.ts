@@ -1,32 +1,15 @@
-import express, { Router } from "express";
+import Router from "@koa/router";
 
-interface IUser {
-  name: string;
-}
+const userRouter = new Router();
 
-interface IUserReturns {
-  router: Router;
-  url: string;
-}
+userRouter.prefix("/user");
 
-const User = (): IUserReturns => {
-  const userRouter = express.Router();
+userRouter.get("/", function ({ response }) {
+  response.body = "API is working properly";
+});
 
-  userRouter.get("/", function (res: { send: (arg0: string) => void }) {
-    res.send("API is working properly");
-  });
+userRouter.post("/", function ({ request, response }) {
+  response.body = request.body;
+});
 
-  userRouter.post(
-    "/",
-    function (req: { body: IUser }, res: { send: (arg0: IUser) => void }) {
-      res.send(req.body);
-    }
-  );
-
-  return {
-    router: userRouter,
-    url: "/user"
-  };
-};
-
-export { User };
+export { userRouter };
