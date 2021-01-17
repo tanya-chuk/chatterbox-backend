@@ -1,7 +1,6 @@
 import Router from "@koa/router";
 
 const userRouter = new Router();
-
 userRouter.prefix("/user");
 
 userRouter.get("/", function ({ response }) {
