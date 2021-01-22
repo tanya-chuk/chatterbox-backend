@@ -11,5 +11,5 @@ app.use(koaBody());
 app.use(userRouter.routes());
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log("We are live on " + port);
 });
