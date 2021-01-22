@@ -1,6 +1,6 @@
 import Router from "@koa/router";
 import { MongoClient } from "mongodb";
-import { db } from "../../db";
+import { db } from "../../database";
 
 const userRouter = new Router();
 userRouter.prefix("/user");
