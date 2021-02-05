@@ -22,6 +22,12 @@ const handleConnection = async (cb: (list) => void) => {
 userRouter.post("/login", async ({ request, response }) => {
   await handleConnection(async (list) => {
     const results = await list.find({ name: request.body.name }).toArray();
+    if (!results.length) {
+      response.status = 400;
+      response.body = {
+        message: "Bad credentials"
+      };
+    }
     response.body = results;
   });
 });
@@ -36,6 +42,15 @@ userRouter.post("/signup", async ({ request, response }) => {
         returnOriginal: false
       }
     );
+
+    if (results.lastErrorObject.updatedExisting) {
+      response.status = 400;
+      response.body = {
+        message: "User already exists"
+      };
+      return;
+    }
+
     response.body = results.value;
   });
 });
