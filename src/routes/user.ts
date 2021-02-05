@@ -4,40 +4,40 @@ import { db } from "../../database";
 
 const userRouter = new Router();
 userRouter.prefix("/user");
-const {
-  namespace: { user },
-  url
-} = db;
+const { namespace, url } = db;
 
-userRouter.post("/login", async (ctx) => {
+const handleConnection = async (cb: (list) => void) => {
   const client = new MongoClient(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
   await client.connect();
-  const userList = client.db(user.root).collection(user.collections.list);
-  const results = await userList
-    .find({ name: ctx.request.body.name })
-    .toArray();
-  ctx.response.body = results;
+  const clientList = client
+    .db(namespace.user.root)
+    .collection(namespace.user.collections.list);
+  await cb(clientList);
+  client.close();
+};
+
+userRouter.post("/login", async ({ request, response }) => {
+  await handleConnection(async (list) => {
+    const results = await list.find({ name: request.body.name }).toArray();
+    response.body = results;
+  });
 });
 
-userRouter.post("/", function ({ request, response }) {
-  const client = new MongoClient(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+userRouter.post("/signup", async ({ request, response }) => {
+  await handleConnection(async (list) => {
+    const results = await list.findOneAndUpdate(
+      { name: request.body.name },
+      { $set: { name: request.body.name } },
+      {
+        upsert: true,
+        returnOriginal: false
+      }
+    );
+    response.body = results.value;
   });
-
-  client.connect((err, client) => {
-    if (err) {
-      console.log(err);
-    }
-
-    const collection = client.db("test").collection("test");
-    collection.insertOne(request.body);
-  });
-
-  response.body = request.body;
 });
 
 export { userRouter };
