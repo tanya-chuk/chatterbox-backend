@@ -21,12 +21,13 @@ const handleConnection = async (cb: (list) => void) => {
 
 userRouter.post("/login", async ({ request, response }) => {
   await handleConnection(async (list) => {
-    const results = await list.find({ name: request.body.name }).toArray();
-    if (!results.length) {
+    const results = await list.findOne({ name: request.body.name });
+    if (!results) {
       response.status = 400;
       response.body = {
         message: "Bad credentials"
       };
+      return;
     }
     response.body = results;
   });
@@ -37,12 +38,8 @@ userRouter.post("/signup", async ({ request, response }) => {
     const results = await list.findOneAndUpdate(
       { name: request.body.name },
       { $set: { name: request.body.name } },
-      {
-        upsert: true,
-        returnOriginal: false
-      }
+      { upsert: true, returnOriginal: false }
     );
-
     if (results.lastErrorObject.updatedExisting) {
       response.status = 400;
       response.body = {
@@ -50,7 +47,6 @@ userRouter.post("/signup", async ({ request, response }) => {
       };
       return;
     }
-
     response.body = results.value;
   });
 });
