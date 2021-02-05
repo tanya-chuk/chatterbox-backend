@@ -4,27 +4,51 @@ import { db } from "../../database";
 
 const userRouter = new Router();
 userRouter.prefix("/user");
+const { namespace, url } = db;
 
-userRouter.get("/", function ({ response }) {
-  response.body = "API is working properly";
-});
-
-userRouter.post("/", function ({ request, response }) {
-  const client = new MongoClient(db.url, {
+const handleConnection = async (cb: (list) => void) => {
+  const client = new MongoClient(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
+  await client.connect();
+  const clientList = client
+    .db(namespace.user.root)
+    .collection(namespace.user.collections.list);
+  await cb(clientList);
+  client.close();
+};
 
-  client.connect((err, client) => {
-    if (err) {
-      console.log(err);
+userRouter.post("/login", async ({ request, response }) => {
+  await handleConnection(async (list) => {
+    const results = await list.findOne({ name: request.body.name });
+    if (!results) {
+      response.status = 400;
+      response.body = {
+        message: "Bad credentials"
+      };
+      return;
     }
-
-    const collection = client.db("test").collection("test");
-    collection.insertOne(request.body);
+    response.body = results;
   });
+});
 
-  response.body = request.body;
+userRouter.post("/signup", async ({ request, response }) => {
+  await handleConnection(async (list) => {
+    const results = await list.findOneAndUpdate(
+      { name: request.body.name },
+      { $set: { name: request.body.name } },
+      { upsert: true, returnOriginal: false }
+    );
+    if (results.lastErrorObject.updatedExisting) {
+      response.status = 400;
+      response.body = {
+        message: "User already exists"
+      };
+      return;
+    }
+    response.body = results.value;
+  });
 });
 
 export { userRouter };
