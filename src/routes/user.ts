@@ -4,13 +4,26 @@ import { db } from "../../database";
 
 const userRouter = new Router();
 userRouter.prefix("/user");
+const {
+  namespace: { user },
+  url
+} = db;
 
-userRouter.get("/", function ({ response }) {
-  response.body = "API is working properly";
+userRouter.post("/login", async (ctx) => {
+  const client = new MongoClient(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
+  await client.connect();
+  const userList = client.db(user.root).collection(user.collections.list);
+  const results = await userList
+    .find({ name: ctx.request.body.name })
+    .toArray();
+  ctx.response.body = results;
 });
 
 userRouter.post("/", function ({ request, response }) {
-  const client = new MongoClient(db.url, {
+  const client = new MongoClient(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
