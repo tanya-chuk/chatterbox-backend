@@ -29,7 +29,7 @@ userRouter.post("/login", async ({ request, response }) => {
       };
       return;
     }
-    const peers = user.peers.length
+    const peers = user.peers?.length
       ? await list
           .find({ _id: { $in: user["peers"] } }, { projection: { peers: 0 } })
           .toArray()
@@ -45,6 +45,7 @@ userRouter.post("/signup", async ({ request, response }) => {
       { $set: { name: request.body.name } },
       { upsert: true, returnOriginal: false }
     );
+
     if (user.lastErrorObject.updatedExisting) {
       response.status = 400;
       response.body = {
